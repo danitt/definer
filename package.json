@@ -1,0 +1,24 @@
+{
+  "name": "definer",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "repository": "git@github.com:danitt/definer.git",
+  "author": "dan <dan@danitt.com>",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "ts-node-dev index",
+    "watch": "ts-node-dev --respawn index"
+  },
+  "dependencies": {
+    "dotenv": "6.2.0",
+    "inquirer": "6.2.1",
+    "ora": "3.0.0",
+    "oxford-dictionary": "1.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "10.12.18",
+    "ts-node-dev": "1.0.0-pre.32",
+    "typescript": "3.2.2"
+  }
+}
