@@ -50,7 +50,9 @@ export function parseResultDefinitions(oxfordResponse: IOxfordResponse): string[
   oxfordResponse.results[0].lexicalEntries.forEach(lex => {
     lex.entries.forEach(entry => {
       entry.senses.forEach(sense => {
-        definitions.push(...sense.definitions);
+        if (sense.definitions) {
+          definitions.push(...sense.definitions);
+        }
       })
     });
   });
@@ -67,7 +69,9 @@ export function parseResultExamples(oxfordResponse: IOxfordResponse): string[] {
   oxfordResponse.results[0].lexicalEntries.forEach(lex => {
     lex.entries.forEach(entry => {
       entry.senses.forEach(sense => {
-        examples.push(...sense.examples.map(x => x.text));
+        if (sense.examples) {
+          examples.push(...sense.examples.map(x => x.text));
+        }
       })
     });
   });

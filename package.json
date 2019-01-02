@@ -11,6 +11,7 @@
     "watch": "ts-node-dev --respawn ./src/index"
   },
   "dependencies": {
+    "csv-parse": "4.3.0",
     "dotenv": "6.2.0",
     "inquirer": "6.2.1",
     "ora": "3.0.0",
