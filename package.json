@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "start": "ts-node-dev index",
-    "watch": "ts-node-dev --respawn index"
+    "start": "ts-node-dev ./src/index",
+    "watch": "ts-node-dev --respawn ./src/index"
   },
   "dependencies": {
     "dotenv": "6.2.0",
