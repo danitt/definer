@@ -18,24 +18,16 @@ const dict = new Dictionary({
 /**
  * Queries the Oxford Dictionaries API, returning an IOxfordResponse object
  * @param { string } term word to query
- * @returns { IOxfordResponse | null }
+ * @returns { IOxfordResponse }
  */
 export async function getDefinitions(term: string): Promise<IOxfordResponse | null> {
   let response: IOxfordResponse | null = null;
   try {
-    // Query API
     response = await dict.find(term);
-    // Validate Result
-    if (response.results.length === 0) {
-      throw Error('No results for given word');
-    }
-    if (response.results.length > 1) {
-      throw Error('Multiple results available for this word, choosing first result');
-    }
   } catch (e) {
-    // Display error and exit
-    console.error(`Error querying or parsing dictionary result for term: ${term}`);
-    process.exit();
+    // Oxford wrapper lib throws errors on null result.. it really shouldn't as the query itself was successful, and simply
+    // returned no results. Errors should only be thrown if the XHR itself fails to receive a 2XX result
+    // console.error(`Error querying or parsing dictionary result for term: ${term}`);
   }
   return response;
 }
@@ -47,13 +39,16 @@ export async function getDefinitions(term: string): Promise<IOxfordResponse | nu
  */
 export function parseResultDefinitions(oxfordResponse: IOxfordResponse): string[] {
   const definitions: string[] = [];
-  oxfordResponse.results[0].lexicalEntries.forEach(lex => {
-    lex.entries.forEach(entry => {
-      entry.senses.forEach(sense => {
-        if (sense.definitions) {
-          definitions.push(...sense.definitions);
-        }
-      })
+
+  oxfordResponse.results.forEach(result => {
+    result.lexicalEntries.forEach(lex => {
+      lex.entries.forEach(entry => {
+        entry.senses.forEach(sense => {
+          if (sense.definitions) {
+            definitions.push(...sense.definitions);
+          }
+        })
+      });
     });
   });
   return definitions;
@@ -66,13 +61,16 @@ export function parseResultDefinitions(oxfordResponse: IOxfordResponse): string[
  */
 export function parseResultExamples(oxfordResponse: IOxfordResponse): string[] {
   const examples: string[] = [];
-  oxfordResponse.results[0].lexicalEntries.forEach(lex => {
-    lex.entries.forEach(entry => {
-      entry.senses.forEach(sense => {
-        if (sense.examples) {
-          examples.push(...sense.examples.map(x => x.text));
-        }
-      })
+
+  oxfordResponse.results.forEach(result => {
+    result.lexicalEntries.forEach(lex => {
+      lex.entries.forEach(entry => {
+        entry.senses.forEach(sense => {
+          if (sense.examples) {
+            examples.push(...sense.examples.map(x => x.text));
+          }
+        })
+      });
     });
   });
   return examples;

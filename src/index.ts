@@ -57,7 +57,8 @@ const spinner = Ora();
       const words = wordsParsed.map(x => x.reduce(y => y));
       // Iterate words array and synchronously display definitions/examples
       for (const word of words) {
-        await queryExtractDisplayTerm(word);
+        const quitOnFail = false; // continue with list if a single term cannot be defined
+        await queryExtractDisplayTerm(word, quitOnFail);
         // Throttle each additional query by 1 sec (free dictionary API is rate-limited)
         const isLastWord = words[words.length-1] === word;
         if (!isLastWord) {
@@ -76,21 +77,35 @@ const spinner = Ora();
   process.exit();
 })();
 
-async function queryExtractDisplayTerm(word: string) {
+async function queryExtractDisplayTerm(word: string, quitOnFail = true) {
+  let response;
   let definitions: string[] = [];
   let examples: string[] = [];
+  // Get definition
   try {
     spinner.info(`Fetching definition for "${word}"..`);
-    const response = await getDefinitions(word);
-    definitions = parseResultDefinitions(response);
-    examples = parseResultExamples(response);
+    response = await getDefinitions(word);
   } catch (e) {
     console.error(e);
-    spinner.fail(`Error getting definition for given word: ${word}`);
     process.exit();
   }
-
-  displaySimpleResult(word, definitions, examples);
+  // Validate result
+  if (!response) {
+    spinner.fail(`Could not get definition for given word: ${word}`);
+    if (quitOnFail) {
+      process.exit();
+    }
+    return;
+  }
+  // Parse and display results
+  try {
+    definitions = parseResultDefinitions(response);
+    examples = parseResultExamples(response);
+    displaySimpleResult(word, definitions, examples);
+  } catch (e) {
+    console.error(e);
+    process.exit();
+  }
 }
 
 function displaySimpleResult(word: string, definitions: string[], examples: string[]) {
