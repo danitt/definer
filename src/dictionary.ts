@@ -38,19 +38,8 @@ export async function getDefinitions(term: string): Promise<IOxfordResponse | nu
  * @returns { string[] } string of definitions
  */
 export function parseResultDefinitions(oxfordResponse: IOxfordResponse): string[] {
-  const definitions: string[] = [];
-
-  oxfordResponse.results.forEach(result => {
-    result.lexicalEntries.forEach(lex => {
-      lex.entries.forEach(entry => {
-        entry.senses.forEach(sense => {
-          if (sense.definitions) {
-            definitions.push(...sense.definitions);
-          }
-        })
-      });
-    });
-  });
+  const senses = parseResultSenses(oxfordResponse);
+  const definitions = senses.reduce((acc, x) => x.definitions ? [...acc, ...x.definitions] : acc, []);
   return definitions;
 }
 
@@ -60,18 +49,18 @@ export function parseResultDefinitions(oxfordResponse: IOxfordResponse): string[
  * @returns { string[] } string of examples
  */
 export function parseResultExamples(oxfordResponse: IOxfordResponse): string[] {
-  const examples: string[] = [];
-
-  oxfordResponse.results.forEach(result => {
-    result.lexicalEntries.forEach(lex => {
-      lex.entries.forEach(entry => {
-        entry.senses.forEach(sense => {
-          if (sense.examples) {
-            examples.push(...sense.examples.map(x => x.text));
-          }
-        })
-      });
-    });
-  });
+  const senses = parseResultSenses(oxfordResponse);
+  const examples = senses.reduce((acc, x) => x.examples ? [...acc, ...x.examples.map(y => y.text)] : acc, []);
   return examples;
+}
+
+function parseResultSenses(oxfordResponse: IOxfordResponse): any[] {
+  const results = oxfordResponse.results || [];
+  const lexicalEntries = results
+    .reduce((acc, x) => x.lexicalEntries ? [...acc, ...x.lexicalEntries] : acc, []);
+  const entries = lexicalEntries
+    .reduce((acc, x) => x.entries ? [...acc, ...x.entries] : acc, []);
+  const senses = entries
+    .reduce((acc, x) => x.senses ? [...acc, ...x.senses] : acc, []);
+  return senses;
 }
